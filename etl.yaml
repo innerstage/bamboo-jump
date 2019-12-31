@@ -1,0 +1,43 @@
+etl:
+  names:
+    pipeline_name: NewPipeline
+    output_file: new_pipeline.py
+    instance_name: new_pipeline
+    conn_file: new_conns.yaml
+  special: ["parent_dir*", "ingest*", "output-db*"]
+  external_libs:
+    - "pandas as pd"
+    - numpy
+    - "json.loads as load_json"
+    - "copy.copy"
+    - ">from math import sqrt, pi"
+    - "> import tensorflow"
+  bamboo_libs: ["grab_connector", "query_to_df", "logger"]
+  parameters:
+    - name: year
+      type: str
+    - name: frequency
+      type: str
+      default: "A"
+  sources:
+    - name: chile-trade
+      var_name: chile_source
+      uri: http://chile.fakedomain.com/<year>_<frequency>.csv
+  databases:
+    - name: clickhouse-remote
+      driver: clickhouse
+  steps:
+    - class: InitializeStep
+      var_name: init_step
+    - class: WildcardDownloadStep*
+      var_name: wdl_step
+      source: chile-trade
+    - class: LoopHelper*
+      iter_step:
+      - class: IterationStep
+        var_name: iter_step
+      sub_steps:
+      - class: TransformStep
+      - class: LoadStep*
+        var_name: load_step
+        db: clickhouse-remote 
