@@ -35,4 +35,23 @@ class StepsDeclaration:
             self.add_code(code)
 
         return self.code
+
+
+class StepsUse:
+    def __init__(self, etl):
+        self.code = ""
+        self.etl = etl
+
+    def add_code(self, code):
+        self.code += code
+
+    
+
+    def run(self):
+        code = "\n\t@staticmethod\n\tdef steps(params):\n"
+        self.add_code(code)
+
+        if "parent_dir*" in self.etl["etl"]["special"]:
+            code = "\t\tparent_dir = os.path.join(grab_parent_dir(__file__))\n"
+            self.add_code(code)
         
