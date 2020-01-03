@@ -52,7 +52,7 @@ class BambooLibs:
         self.dependency = bamboo_dependencies_dict
         self.reverse_dep = {v:k for k in self.dependency for v in self.dependency[k]}
         self.instance = {k:[] for k in self.dependency.keys()}
-        self.bamboo_list = etl["etl"]["bamboo_libs"] + ["EasyPipeline", "PipelineStep", "Parameter", "logger"]
+        self.bamboo_list = etl["etl"]["bamboo_libs"] + ["EasyPipeline", "PipelineStep", "Parameter", "logger", "grab_connector"]
 
     def add_code(self, code):
         self.code += code
@@ -78,9 +78,6 @@ class BambooLibs:
         self.add_code("\n")
 
     def run(self):
-        if "parent_dir*" in self.etl["etl"]["special"]:
-            self.add_to_instance("parent_dir")
-
         for element in self.bamboo_list:
             self.add_to_instance(element)
 

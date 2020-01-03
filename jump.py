@@ -2,7 +2,7 @@ import yaml
 import re
 
 from bamboo_jumpstart.libraries import ExternalLibs, BambooLibs
-from bamboo_jumpstart.steps import StepsDeclaration
+from bamboo_jumpstart.steps import StepsDeclaration, StepsUse
 from bamboo_jumpstart.parameters import ParameterDeclaration
 
 
@@ -14,3 +14,4 @@ print(ExternalLibs(etl).run())
 print(BambooLibs(etl).run())
 print(StepsDeclaration(etl).run())
 print(ParameterDeclaration(etl).run())
+print(StepsUse(etl).run())

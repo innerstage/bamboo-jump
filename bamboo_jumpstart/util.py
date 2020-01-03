@@ -23,15 +23,22 @@ bamboo_dependencies_dict = {
 }
 
 
-def camelcase_to_snakecase(str):
-    words = [[str[0]]] 
+def camelcase_to_snakecase(name):
+    start = []
+    words = []
   
-    for c in str[1:]: 
-        if words[-1][-1].islower() and c.isupper(): 
-            words.append(list(c)) 
-        else: 
-            words[-1].append(c) 
-  
-    words = [''.join(word).lower() for word in words]
+    for index, char in enumerate(name): 
+        if char.isupper():
+            start.append(index)
 
-    return '_'.join(words)
+    for i in range(len(start)-1):
+        words.append(name[start[i]:start[i+1]])
+    words.append(name[start[-1]:])
+
+    lower_words = [w.lower() for w in words]
+
+    return "_".join(lower_words)
+
+
+if __name__ == "__main__":
+    print(camelcase_to_snakecase("WillIAm"))
