@@ -41,21 +41,30 @@ class StepsUse:
     def __init__(self, etl):
         self.code = ""
         self.etl = etl
+        self.use_loop = self.get_use_loop()
         self.steps = self.get_steps()
-        self.use_loop = (False, 0)
         self.source_vars = {}
         self.db_vars = {}
+
 
     def add_code(self, code):
         self.code += code
 
+
+    def get_use_loop(self):
+        use_loop = (False, 0)
+        for index, step in enumerate(self.etl["etl"]["steps"]):
+            if step["class"] == "LoopHelper*":
+                use_loop = (True, index)
+
+        return use_loop
+
+
     def get_steps(self):
         steps = []
 
-        for index, step in enumerate(self.etl["etl"]["steps"]):
-            if step["class"] == "LoopHelper*":
-                self.use_loop = (True, index)
-            else:
+        for step in self.etl["etl"]["steps"]:
+            if step["class"] != "LoopHelper*":
                 steps.append(step)
 
         if self.use_loop[0]:
@@ -65,6 +74,7 @@ class StepsUse:
                 steps.append(step)
 
         return steps
+
 
     def get_connectors(self):
         conn_code = ""
@@ -131,15 +141,21 @@ class StepsUse:
             code = '\t\t{} = {}()\n'.format(var_name, step["class"])
             return code
 
+
     def get_var_name(self, step):
         if "var_name" in step.keys():
             return step["var_name"]
         else:
-            special_var_names = {"DownloadStep*": "dl_step", "WildcardDownloadStep*": "wdl_step", "LoadStep*": "load_step"}
+            special_var_names = {
+                "DownloadStep*": "dl_step", 
+                "WildcardDownloadStep*": "wdl_step", 
+                "LoadStep*": "load_step"
+            }
             if step["class"] in special_var_names.keys():
                 return special_var_names[step["class"]]
             else:
                 return camelcase_to_snakecase(step["class"].replace("*", ""))
+
 
     def get_sub_steps(self):
         loop_helper = self.etl["etl"]["steps"][self.use_loop[1]]
@@ -148,15 +164,17 @@ class StepsUse:
         for step in loop_helper["sub_steps"][1:]:
             code += ', {}'.format(self.get_var_name(step))
         code += ']'
+        print(code)
         if "ingest*" in self.etl["etl"]["special"]:
             code += ' if params.get("ingest") else [{}'.format(self.get_var_name(step_0))
-            for step in [s for s in loop_helper["sub_steps"][1:] if s["class"]!="DownloadStep*"]:
+            for step in [s for s in loop_helper["sub_steps"][1:] if s["class"]!="LoadStep*"]:
                 code += ', {}'.format(self.get_var_name(step))
             code += ']\n'
         else:
             code += '\n'
 
         return '\n' + code
+
 
     def get_steps_return(self):
         if self.use_loop[0] and self.use_loop[1] == 0:
@@ -165,23 +183,28 @@ class StepsUse:
             for step in self.etl["etl"]["steps"][1:]:
                 code += ', {}'
             code += ']\n'
+
             return code
+
         elif self.use_loop[0] and self.use_loop[1] > 0:
             loop_helper = self.etl["etl"]["steps"][self.use_loop[1]]
             code = '\n\t\treturn [{}'.format(self.get_var_name(self.etl["etl"]["steps"][0]))
             for step in self.etl["etl"]["steps"][1:self.use_loop[1]]:
-                code += ', {}'
+                code += ', {}'.format(self.get_var_name(step))
             code += ', '
-            code = 'LoopHelper(iter_step={}, sub_steps=sub_steps)'.format(self.get_var_name(loop_helper["iter_step"][0]))
+            code += 'LoopHelper(iter_step={}, sub_steps=sub_steps)'.format(self.get_var_name(loop_helper["iter_step"][0]))
             for step in self.etl["etl"]["steps"][self.use_loop[1]+1:]:
                 code += ', {}'
             code += ']\n'
+
             return code
+
         else:
             code = "\n\t\treturn [{}".format(self.get_var_name(self.steps[0]))
             for step in self.steps[1:]:
                 code += ', {}'.format(self.get_var_name(step))
             code += "]\n"
+
             return code
 
 
