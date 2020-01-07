@@ -1,0 +1,8 @@
+etl:
+  names:
+    pipeline_name: NewPipeline #REQUIRED
+  steps: # REQUIRED
+    - class: DownloadStep*
+    - class: TransformStep
+      var_name: transform_step
+    - class: LoadStep*

@@ -5,10 +5,18 @@ class ExternalLibs:
     def __init__(self, etl):
         self.code = ""
         self.etl = etl
-        self.libs_list = etl["etl"]["external_libs"] if etl["etl"]["external_libs"] else []
+        self.libs_list = self.get_libs_list()
 
     def add_code(self, code):
         self.code += code
+
+    def get_libs_list(self):
+        if "external_libs" in self.etl["etl"].keys():
+            libs_list = self.etl["etl"]["external_libs"]
+        else:
+            libs_list = []
+
+        return libs_list
 
     def process(self, entry):
         if "as" in entry and "." in entry: # Example: ["math.sqrt as square_root"] -> "from math import sqrt as square_root"
@@ -35,7 +43,7 @@ class ExternalLibs:
             return entry.replace("> ",">").replace(">","") + "\n"
 
     def run(self):
-        if "parent_dir*" in self.etl["etl"]["special"]:
+        if "special" in self.etl["etl"].keys() and "parent_dir*" in self.etl["etl"]["special"]:
             if "os" not in self.libs_list:
                 self.libs_list.append("os")
 
@@ -52,10 +60,20 @@ class BambooLibs:
         self.dependency = bamboo_dependencies_dict
         self.reverse_dep = {v:k for k in self.dependency for v in self.dependency[k]}
         self.instance = {k:[] for k in self.dependency.keys()}
-        self.bamboo_list = etl["etl"]["bamboo_libs"] + ["EasyPipeline", "PipelineStep", "Parameter", "logger", "grab_connector"]
+        self.bamboo_list = self.get_bamboo_libs()
 
     def add_code(self, code):
         self.code += code
+
+    def get_bamboo_libs(self):
+        bamboo_libs = []
+        base = ["EasyPipeline", "PipelineStep", "Parameter", "logger", "grab_connector"]
+        if "bamboo_libs" in self.etl["etl"].keys():
+            bamboo_libs = self.etl["etl"]["bamboo_libs"] + base
+        else:
+            bamboo_libs = base
+
+        return bamboo_libs
 
     def add_to_instance(self, element):
         key = self.reverse_dep[element]

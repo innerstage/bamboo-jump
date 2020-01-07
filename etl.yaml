@@ -18,7 +18,7 @@ etl:
       type: str
     - name: frequency
       type: str
-      default: "A"
+      default: '"A"'
   sources:
     - name: chile-trade
       var_name: chile_source
