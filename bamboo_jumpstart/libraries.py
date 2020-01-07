@@ -93,7 +93,7 @@ class BambooLibs:
                     line += "{}, ".format(vals[i])
                 line += "{}\n".format(vals[-1])
                 self.add_code(line)
-        self.add_code("\n")
+        self.add_code("\n\n")
 
     def run(self):
         for element in self.bamboo_list:

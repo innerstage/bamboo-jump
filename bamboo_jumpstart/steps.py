@@ -117,7 +117,8 @@ class StepsUse:
         if step["class"] == "WildcardDownloadStep*":
             var_name = step["var_name"] if "var_name" in step.keys() else "wdl_step"
             source_conn = step["source"] if "source" in step.keys() else '""'
-            code = '\t\t{} = WildcardDownloadStep(connector={})\n'.format(var_name, self.source_vars[source_conn])
+            source_var = self.source_vars[source_conn] if source_conn != '""' else '""'
+            code = '\t\t{} = WildcardDownloadStep(connector={})\n'.format(var_name, source_var)
             if "special" in self.etl["etl"].keys() and "parent_dir*" in self.etl["etl"]["special"]:
                 source_conn = step["source"] if "source" in step.keys() else '""'
                 code = '\t\t{} = WildcardDownloadStep(connector="{}", connector_path=parent_dir)\n'.format(var_name, source_conn)
@@ -169,7 +170,7 @@ class StepsUse:
             code += ', {}'.format(self.get_var_name(step))
         code += ']'
         
-        if "ingest*" in self.etl["etl"]["special"]:
+        if "special" in self.etl["etl"].keys() and "ingest*" in self.etl["etl"]["special"]:
             code += ' if params.get("ingest") else [{}'.format(self.get_var_name(step_0))
             for step in [s for s in loop_helper["sub_steps"][1:] if s["class"]!="LoadStep*"]:
                 code += ', {}'.format(self.get_var_name(step))

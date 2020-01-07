@@ -1,0 +1,14 @@
+etl:
+  names:
+    pipeline_name: NewPipeline #REQUIRED
+  special:
+    - ingest*
+    - output-db*
+  steps: # REQUIRED
+    - class: WildcardDownloadStep*
+    - class: LoopHelper*
+      iter_step:
+      - class: IterStep
+      sub_steps:
+      - class: TransformStep
+      - class: LoadStep*

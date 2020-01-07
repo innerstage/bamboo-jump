@@ -1,0 +1,7 @@
+etl:
+  names:
+    pipeline_name: MyPipeline
+  steps:
+    - class: DownloadStep
+    - class: TransformStep
+    - class: LoadStep

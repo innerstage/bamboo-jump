@@ -9,6 +9,7 @@ from bamboo_lib.helpers import grab_connector, query_to_df, grab_connector
 from bamboo_lib.logger import logger, logger
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 
+
 class InitializeStep(PipelineStep):
 	def run_step(self, prev, params):
 		logger.info("InitializeStep...")
@@ -74,3 +75,4 @@ if __name__ == "__main__":
 			"year": "",
 			"frequency": "A"
 		}
+	)

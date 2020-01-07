@@ -62,7 +62,7 @@ class MainDeclaration:
                 code = ',\n\t\t\t"{}": {}'.format(name, val)
                 self.add_code(code)
         
-        code = '\n\t\t}\n'
+        code = '\n\t\t}\n\t)\n'
         self.add_code(code)
 
         return self.code
